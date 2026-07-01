@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+DoAn/target/
+.idea/
+.vscode/
+*.class
+*.jar
+*.war
+.DS_Store
