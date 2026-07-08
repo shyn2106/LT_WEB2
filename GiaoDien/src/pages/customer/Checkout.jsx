@@ -20,6 +20,7 @@ export default function Checkout() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('CARD');
 
   const [availableServices, setAvailableServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
@@ -82,16 +83,36 @@ export default function Checkout() {
     })
     .then(res => {
       if (res.ok) {
-        setSuccess(true);
+        return res.json();
       } else {
-        alert("Có lỗi xảy ra khi đặt phòng, vui lòng thử lại.");
+        throw new Error("Có lỗi xảy ra khi đặt phòng, vui lòng thử lại.");
+      }
+    })
+    .then(data => {
+      if (paymentMethod === 'VNPAY') {
+        fetch(`http://localhost:8080/api/payment/create_payment?amount=${grandTotal}&bookingId=${data.id}`)
+          .then(res => res.json())
+          .then(paymentData => {
+            if (paymentData.status === 'ok' && paymentData.url) {
+              window.location.href = paymentData.url;
+            } else {
+              alert("Lỗi khi tạo liên kết thanh toán VNPAY");
+              setIsSubmitting(false);
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Lỗi khi kết nối đến server thanh toán.");
+            setIsSubmitting(false);
+          });
+      } else {
+        setSuccess(true);
+        setIsSubmitting(false);
       }
     })
     .catch(err => {
       console.error(err);
-      alert("Lỗi kết nối tới Server.");
-    })
-    .finally(() => {
+      alert(err.message || "Lỗi kết nối tới Server.");
       setIsSubmitting(false);
     });
   };
@@ -193,9 +214,12 @@ export default function Checkout() {
               
               <div className="pl-11 space-y-6">
                 {/* Credit Card Option */}
-                <div className="border border-[#8b6e45] rounded-sm p-6 bg-white relative">
+                <div 
+                  className={`border rounded-sm p-6 bg-white relative cursor-pointer transition-colors ${paymentMethod === 'CARD' ? 'border-[#8b6e45]' : 'border-gray-200 hover:border-gray-300'}`}
+                  onClick={() => setPaymentMethod('CARD')}
+                >
                   <div className="absolute top-6 left-6">
-                    <input type="radio" name="payment" defaultChecked className="w-4 h-4 text-[#8b6e45] focus:ring-[#8b6e45] accent-[#8b6e45]" />
+                    <input type="radio" name="payment" checked={paymentMethod === 'CARD'} readOnly className="w-4 h-4 text-[#8b6e45] focus:ring-[#8b6e45] accent-[#8b6e45]" />
                   </div>
                   <div className="pl-8">
                     <div className="flex items-center space-x-2 mb-1">
@@ -226,15 +250,18 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                {/* Bank Transfer Option */}
-                <div className="border border-gray-200 rounded-sm p-6 bg-white opacity-60 hover:opacity-100 transition-opacity relative cursor-pointer">
+                {/* VNPAY Option */}
+                <div 
+                  className={`border rounded-sm p-6 bg-white relative cursor-pointer transition-colors ${paymentMethod === 'VNPAY' ? 'border-[#8b6e45]' : 'border-gray-200 hover:border-gray-300'}`}
+                  onClick={() => setPaymentMethod('VNPAY')}
+                >
                   <div className="absolute top-6 left-6">
-                    <input type="radio" name="payment" className="w-4 h-4 text-[#8b6e45] focus:ring-[#8b6e45]" />
+                    <input type="radio" name="payment" checked={paymentMethod === 'VNPAY'} readOnly className="w-4 h-4 text-[#8b6e45] focus:ring-[#8b6e45] accent-[#8b6e45]" />
                   </div>
                   <div className="pl-8">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="material-symbols-outlined text-gray-600">account_balance</span>
-                      <span className="font-bold text-[#0f1c2e] text-sm">Chuyển khoản ngân hàng</span>
+                      <span className="font-bold text-[#0f1c2e] text-sm">Thanh toán qua VNPAY</span>
                     </div>
                     <div className="text-xs text-gray-400 uppercase tracking-wider">QUÉT MÃ QR HOẶC NHẬP TAY</div>
                   </div>

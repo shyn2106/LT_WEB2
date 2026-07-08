@@ -11,6 +11,7 @@ import Login from './pages/customer/Login';
 import Register from './pages/customer/Register';
 import Profile from './pages/customer/Profile';
 import BookingDetail from './pages/customer/BookingDetail';
+import PaymentResult from './pages/customer/PaymentResult';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageBookings from './pages/admin/ManageBookings';
@@ -33,6 +34,7 @@ function App() {
           <Route path="register" element={<Register />} />
           <Route path="profile" element={<Profile />} />
           <Route path="booking/:id" element={<BookingDetail />} />
+          <Route path="payment-result" element={<PaymentResult />} />
           <Route path="*" element={<div className="p-12 text-center text-xl">404 - Not Found</div>} />
         </Route>
 

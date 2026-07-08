@@ -8,34 +8,13 @@ export default function FeaturedRooms() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Trong môi trường thật, đây sẽ là gọi API lấy phòng nổi bật
-    // fetch('http://localhost:8080/api/room-types').then(...)
-    
-    // Sử dụng mock data để đảm bảo UI đẹp ngay cả khi chưa có data
-    const mockRooms = [
-      {
-        id: 1,
-        typeName: 'Deluxe City View',
-        price: 2500000,
-        size: 35,
-        imageUrl: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=2070&auto=format&fit=crop'
-      },
-      {
-        id: 2,
-        typeName: 'Executive Suite',
-        price: 4800000,
-        size: 55,
-        imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2070&auto=format&fit=crop'
-      },
-      {
-        id: 3,
-        typeName: 'Presidential Penthouse',
-        price: 12000000,
-        size: 120,
-        imageUrl: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=2070&auto=format&fit=crop'
-      }
-    ];
-    setRooms(mockRooms);
+    fetch('http://localhost:8080/api/room-types')
+      .then(res => res.json())
+      .then(data => {
+        // Lấy tối đa 3 phòng đầu tiên làm phòng nổi bật
+        setRooms(data.slice(0, 3));
+      })
+      .catch(err => console.error("Error fetching room types:", err));
   }, []);
 
   const formatPrice = (price) => {
@@ -86,9 +65,9 @@ export default function FeaturedRooms() {
               className="group cursor-pointer bg-[#fbf9f8] rounded-sm overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500"
             >
               {/* Image Container with Zoom effect */}
-              <div className="relative h-72 overflow-hidden">
+              <div className="relative h-72 overflow-hidden bg-gray-200">
                 <img 
-                  src={room.imageUrl} 
+                  src={room.imageUrl || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80'} 
                   alt={room.typeName} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                 />
@@ -110,10 +89,10 @@ export default function FeaturedRooms() {
                 {/* Amenities */}
                 <div className="flex flex-wrap gap-4 text-gray-500 text-sm mb-6 pb-6 border-b border-gray-200">
                   <div className="flex items-center" title="Kích thước">
-                    <FiMaximize className="mr-2" /> {room.size}m²
+                    <FiMaximize className="mr-2" /> {room.size || '35'}m²
                   </div>
                   <div className="flex items-center" title="Sức chứa">
-                    <FiUsers className="mr-2" /> 2 Người
+                    <FiUsers className="mr-2" /> {room.capacity || 2} Người
                   </div>
                   <div className="flex items-center" title="Free Wifi">
                     <FiWifi className="mr-2" /> Wifi

@@ -8,8 +8,9 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement
 } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -17,7 +18,8 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
 
 export default function AdminDashboard() {
@@ -28,6 +30,11 @@ export default function AdminDashboard() {
   });
   
   const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: []
+  });
+
+  const [pieData, setPieData] = useState({
     labels: [],
     datasets: []
   });
@@ -54,10 +61,12 @@ export default function AdminDashboard() {
             'T1': 0, 'T2': 0, 'T3': 0, 'T4': 0, 'T5': 0, 'T6': 0,
             'T7': 0, 'T8': 0, 'T9': 0, 'T10': 0, 'T11': 0, 'T12': 0
           };
+          
+          const roomTypeCount = {};
 
           bookings.forEach(b => {
-            // Giả lập tính doanh thu
-            const roomPrice = b.room?.price || 0;
+            // Lấy giá từ RoomType
+            const roomPrice = b.room?.roomType?.price || 0;
             // Tính số đêm
             const start = new Date(b.checkInDate);
             const end = new Date(b.checkOutDate);
@@ -72,6 +81,14 @@ export default function AdminDashboard() {
               if (!isNaN(start.getMonth())) {
                 const monthKey = `T${start.getMonth() + 1}`;
                 monthlyRevenue[monthKey] += bookingRev;
+              }
+              
+              // Tính cho biểu đồ tròn (Tỉ lệ loại phòng)
+              const roomTypeName = b.room?.roomType?.typeName || 'Khác';
+              if (roomTypeCount[roomTypeName]) {
+                roomTypeCount[roomTypeName]++;
+              } else {
+                roomTypeCount[roomTypeName] = 1;
               }
             }
           });
@@ -89,6 +106,22 @@ export default function AdminDashboard() {
                 label: 'Doanh thu (VNĐ)',
                 data: Object.values(monthlyRevenue),
                 backgroundColor: '#8b6e45',
+              }
+            ]
+          });
+
+          // Các màu cho biểu đồ tròn
+          const backgroundColors = [
+            '#0f1c2e', '#8b6e45', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'
+          ];
+
+          setPieData({
+            labels: Object.keys(roomTypeCount),
+            datasets: [
+              {
+                data: Object.values(roomTypeCount),
+                backgroundColor: backgroundColors.slice(0, Object.keys(roomTypeCount).length),
+                borderWidth: 1,
               }
             ]
           });
@@ -142,9 +175,10 @@ export default function AdminDashboard() {
       </div>
 
       {/* Chart Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Biểu đồ doanh thu năm nay</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Biểu đồ Cột */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Doanh thu năm nay</h2>
           <div className="h-[300px] flex items-center justify-center">
             {chartData.labels.length > 0 ? (
               <Bar 
@@ -160,25 +194,46 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
-        
+
+        {/* Biểu đồ Tròn */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Lối tắt</h2>
-          <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Tỉ lệ đặt phòng theo hạng</h2>
+          <div className="h-[300px] flex items-center justify-center">
+            {pieData.labels.length > 0 ? (
+              <Pie 
+                data={pieData} 
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { position: 'right' } }
+                }} 
+              />
+            ) : (
+              <span className="text-gray-400">Không có dữ liệu</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 mb-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Lối tắt thao tác nhanh</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link to="/admin/bookings" className="flex items-center p-4 border border-gray-200 rounded-md hover:border-[#8b6e45] hover:bg-orange-50/50 transition-colors">
-              <span className="material-symbols-outlined text-gray-400 mr-4 text-2xl">list_alt</span>
-              <span className="font-medium text-gray-700">Duyệt Đơn Đặt Phòng</span>
+              <span className="material-symbols-outlined text-gray-400 mr-3 text-2xl">list_alt</span>
+              <span className="font-medium text-gray-700">Duyệt Đơn</span>
             </Link>
             <Link to="/admin/rooms" className="flex items-center p-4 border border-gray-200 rounded-md hover:border-[#8b6e45] hover:bg-orange-50/50 transition-colors">
-              <span className="material-symbols-outlined text-gray-400 mr-4 text-2xl">meeting_room</span>
-              <span className="font-medium text-gray-700">Quản lý Hạng Phòng</span>
+              <span className="material-symbols-outlined text-gray-400 mr-3 text-2xl">meeting_room</span>
+              <span className="font-medium text-gray-700">Quản lý Phòng</span>
             </Link>
             <Link to="/admin/services" className="flex items-center p-4 border border-gray-200 rounded-md hover:border-[#8b6e45] hover:bg-orange-50/50 transition-colors">
-              <span className="material-symbols-outlined text-gray-400 mr-4 text-2xl">room_service</span>
-              <span className="font-medium text-gray-700">Quản lý Dịch Vụ</span>
+              <span className="material-symbols-outlined text-gray-400 mr-3 text-2xl">room_service</span>
+              <span className="font-medium text-gray-700">Dịch Vụ</span>
             </Link>
             <Link to="/admin/users" className="flex items-center p-4 border border-gray-200 rounded-md hover:border-[#8b6e45] hover:bg-orange-50/50 transition-colors">
-              <span className="material-symbols-outlined text-gray-400 mr-4 text-2xl">group</span>
-              <span className="font-medium text-gray-700">Quản lý Người Dùng</span>
+              <span className="material-symbols-outlined text-gray-400 mr-3 text-2xl">group</span>
+              <span className="font-medium text-gray-700">Người Dùng</span>
             </Link>
           </div>
         </div>

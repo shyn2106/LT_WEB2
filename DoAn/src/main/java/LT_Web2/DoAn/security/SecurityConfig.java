@@ -47,6 +47,8 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 // Cho phép xem phòng (GET) mà không cần login
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/rooms/**", "/api/room-types/**", "/api/services/**").permitAll()
+                // Cho phép api payment
+                .requestMatchers("/api/payment/**").permitAll()
                 // Tất cả các request khác phải đăng nhập
                 .anyRequest().authenticated()
             );
