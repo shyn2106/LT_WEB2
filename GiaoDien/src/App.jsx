@@ -22,14 +22,23 @@ import ManageServices from './pages/admin/ManageServices';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageBanners from './pages/admin/ManageBanners';
 
-// Component xử lý redirect từ payment-result.html (file tĩnh)
+// Component xử lý redirect từ VNPAY (detect params ở trang chủ hoặc sessionStorage)
 function PaymentRedirectHandler() {
   const navigate = useNavigate();
   useEffect(() => {
-    const params = sessionStorage.getItem('vnpay_return_params');
-    if (params) {
+    const search = window.location.search;
+
+    // Trường hợp 1: VNPAY redirect về trang chủ với params (khi returnUrl = /)
+    if (search && search.includes('vnp_ResponseCode')) {
+      navigate('/payment-result' + search, { replace: true });
+      return;
+    }
+
+    // Trường hợp 2: Từ sessionStorage (khi payment-result/index.html lưu lại)
+    const stored = sessionStorage.getItem('vnpay_return_params');
+    if (stored) {
       sessionStorage.removeItem('vnpay_return_params');
-      navigate('/payment-result' + params, { replace: true });
+      navigate('/payment-result' + stored, { replace: true });
     }
   }, [navigate]);
   return null;
