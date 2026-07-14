@@ -14,7 +14,9 @@ export default function AdminLayout() {
     { name: 'Tổng quan', path: '/admin', icon: 'dashboard' },
     { name: 'Quản lý Đặt phòng', path: '/admin/bookings', icon: 'receipt_long' },
     { name: 'Quản lý Phòng', path: '/admin/rooms', icon: 'meeting_room' },
+    { name: 'Quản lý Hạng Phòng', path: '/admin/room-types', icon: 'category' },
     { name: 'Quản lý Dịch vụ', path: '/admin/services', icon: 'room_service' },
+    { name: 'Quản lý Banner', path: '/admin/banners', icon: 'view_carousel' },
     { name: 'Quản lý Người dùng', path: '/admin/users', icon: 'group' }
   ];
 

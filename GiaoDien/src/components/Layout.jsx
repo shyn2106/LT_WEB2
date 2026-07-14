@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiSearch, FiMenu, FiX } from 'react-icons/fi';
 import { FaFacebookF, FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa';
@@ -7,8 +7,18 @@ export default function Layout() {
   const [user, setUser] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [headerSearchTerm, setHeaderSearchTerm] = useState('');
+  const searchInputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Focus input when search opens
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
   // Kiểm tra xem có đang ở trang chủ không để đổi style header
   const isHomePage = location.pathname === '/';
@@ -56,6 +66,15 @@ export default function Layout() {
     navigate('/');
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (headerSearchTerm.trim()) {
+      setIsSearchOpen(false);
+      navigate(`/properties?q=${encodeURIComponent(headerSearchTerm.trim())}`);
+      setHeaderSearchTerm('');
+    }
+  };
+
   // Xác định class cho header dựa vào trạng thái scroll và trang hiện tại
   const headerClasses = `fixed w-full top-0 z-50 transition-all duration-300 ${
     isScrolled || !isHomePage
@@ -83,17 +102,45 @@ export default function Layout() {
             <Link to="/" className={navLinkClasses}>Home</Link>
             <Link to="/properties" className={navLinkClasses}>Rooms</Link>
             <Link to="/experiences" className={navLinkClasses}>Experiences</Link>
-            <a href="#restaurant" className={navLinkClasses}>Restaurant</a>
-            <a href="#spa" className={navLinkClasses}>Spa</a>
-            <a href="#gallery" className={navLinkClasses}>Gallery</a>
             <Link to="/contact" className={navLinkClasses}>Contact</Link>
           </nav>
 
           {/* Actions (Desktop) */}
           <div className="hidden xl:flex items-center space-x-5 flex-shrink-0">
-            <button className="hover:text-[#8b6e45] transition-colors">
-              <FiSearch className="text-xl" />
-            </button>
+            <div className="flex items-center">
+              <form 
+                onSubmit={handleSearchSubmit} 
+                className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${
+                  isSearchOpen ? 'w-48 opacity-100 mr-2' : 'w-0 opacity-0'
+                }`}
+              >
+                <input 
+                  ref={searchInputRef}
+                  type="text" 
+                  value={headerSearchTerm}
+                  onChange={(e) => setHeaderSearchTerm(e.target.value)}
+                  placeholder="Search rooms..."
+                  className={`w-full bg-transparent border-b border-gray-400 focus:border-[#8b6e45] outline-none text-sm py-1 px-2 placeholder-gray-400 ${
+                    isScrolled || !isHomePage ? 'text-[#1a2b3c]' : 'text-white'
+                  }`}
+                  onBlur={() => {
+                    if (!headerSearchTerm.trim()) setIsSearchOpen(false);
+                  }}
+                />
+              </form>
+              <button 
+                onClick={() => {
+                  if (isSearchOpen && headerSearchTerm.trim()) {
+                    handleSearchSubmit({ preventDefault: () => {} });
+                  } else {
+                    setIsSearchOpen(!isSearchOpen);
+                  }
+                }} 
+                className="hover:text-[#8b6e45] transition-colors"
+              >
+                <FiSearch className="text-xl" />
+              </button>
+            </div>
             
             {user ? (
               <div className="flex items-center space-x-3">
@@ -132,9 +179,6 @@ export default function Layout() {
             <Link to="/">Home</Link>
             <Link to="/properties">Rooms & Suites</Link>
             <Link to="/experiences">Experiences</Link>
-            <a href="#restaurant">Restaurant & Bar</a>
-            <a href="#spa">Wellness & Spa</a>
-            <a href="#gallery">Gallery</a>
             <Link to="/contact">Contact Us</Link>
           </nav>
           

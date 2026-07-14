@@ -7,6 +7,10 @@ export default function ManageBookings() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
+
   useEffect(() => {
     fetchBookings();
   }, []);
@@ -22,8 +26,18 @@ export default function ManageBookings() {
         'Pragma': 'no-cache'
       }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          console.error('Lỗi API bookings:', res.status, res.statusText);
+          if (res.status === 403 || res.status === 401) {
+            console.warn('Token hết hạn hoặc không có quyền. Hãy đăng nhập lại với tài khoản ADMIN.');
+          }
+          return [];
+        }
+        return res.json();
+      })
       .then(data => {
+        if (!Array.isArray(data)) return;
         // Sắp xếp ID giảm dần (mới nhất lên đầu)
         const sortedData = data.sort((a, b) => b.id - a.id);
         setBookings(sortedData);
@@ -101,6 +115,16 @@ export default function ManageBookings() {
     grandTotal = subTotal + tax;
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(bookings.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentBookings = bookings.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100 flex justify-between items-center">
@@ -125,10 +149,10 @@ export default function ManageBookings() {
           <tbody>
             {loading ? (
               <tr><td colSpan="6" className="text-center py-8">Đang tải dữ liệu...</td></tr>
-            ) : bookings.length === 0 ? (
+            ) : currentBookings.length === 0 ? (
               <tr><td colSpan="6" className="text-center py-8">Chưa có đơn đặt phòng nào.</td></tr>
             ) : (
-              bookings.map((b) => (
+              currentBookings.map((b) => (
                 <tr key={b.id} className="bg-white border-b border-gray-50 hover:bg-gray-50">
                   <td className="px-6 py-4 font-medium text-gray-900">
                     #BK-{b.id.toString().padStart(4, '0')}
@@ -187,6 +211,58 @@ export default function ManageBookings() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {!loading && bookings.length > 0 && (
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-white rounded-b-lg">
+          <div className="text-sm text-gray-500">
+            Hiển thị <span className="font-medium text-gray-900">{indexOfFirstItem + 1}</span> đến <span className="font-medium text-gray-900">{Math.min(indexOfLastItem, bookings.length)}</span> trong tổng số <span className="font-medium text-gray-900">{bookings.length}</span> đơn
+          </div>
+          <div className="flex space-x-1">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-3 py-1.5 text-sm font-medium rounded-sm border ${currentPage === 1 ? 'text-gray-400 border-gray-200 cursor-not-allowed' : 'text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-[#8b6e45]'}`}
+            >
+              Trước
+            </button>
+            
+            {[...Array(totalPages)].map((_, index) => {
+              const pageNumber = index + 1;
+              // Simple logic to show limited page numbers (e.g., current, first, last, neighbors)
+              if (
+                pageNumber === 1 || 
+                pageNumber === totalPages || 
+                (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+              ) {
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => handlePageChange(pageNumber)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-sm border ${currentPage === pageNumber ? 'bg-[#0f1c2e] text-white border-[#0f1c2e]' : 'text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              } else if (
+                pageNumber === currentPage - 2 || 
+                pageNumber === currentPage + 2
+              ) {
+                return <span key={pageNumber} className="px-2 py-1.5 text-gray-400">...</span>;
+              }
+              return null;
+            })}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1.5 text-sm font-medium rounded-sm border ${currentPage === totalPages ? 'text-gray-400 border-gray-200 cursor-not-allowed' : 'text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-[#8b6e45]'}`}
+            >
+              Sau
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal Chi Tiết Đặt Phòng */}
       <AnimatePresence>

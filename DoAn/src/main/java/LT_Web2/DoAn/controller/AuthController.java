@@ -35,6 +35,9 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
+    LT_Web2.DoAn.service.EmailService emailService;
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -79,5 +82,63 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody LT_Web2.DoAn.dto.ForgotPasswordRequest request) {
+        java.util.Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        if (!userOptional.isPresent()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Không tìm thấy tài khoản với email này!"));
+        }
+
+        User user = userOptional.get();
+        
+        // Sinh mã OTP 6 số ngẫu nhiên
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+        
+        user.setResetOtp(otp);
+        user.setResetOtpExpiry(java.time.LocalDateTime.now().plusMinutes(5)); // Hết hạn sau 5 phút
+        userRepository.save(user);
+
+        // Gửi email
+        emailService.sendPasswordResetOtp(user.getEmail(), otp);
+
+        return ResponseEntity.ok(new MessageResponse("Mã OTP đã được gửi đến email của bạn!"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody LT_Web2.DoAn.dto.ResetPasswordRequest request) {
+        java.util.Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        if (!userOptional.isPresent()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Không tìm thấy tài khoản!"));
+        }
+
+        User user = userOptional.get();
+
+        // Kiểm tra OTP
+        if (user.getResetOtp() == null || !user.getResetOtp().equals(request.getOtp())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Mã OTP không chính xác!"));
+        }
+
+        // Kiểm tra hạn sử dụng
+        if (user.getResetOtpExpiry() == null || user.getResetOtpExpiry().isBefore(java.time.LocalDateTime.now())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Mã OTP đã hết hạn!"));
+        }
+
+        // Cập nhật mật khẩu mới
+        user.setPassword(encoder.encode(request.getNewPassword()));
+        user.setResetOtp(null);
+        user.setResetOtpExpiry(null);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("Đặt lại mật khẩu thành công!"));
     }
 }

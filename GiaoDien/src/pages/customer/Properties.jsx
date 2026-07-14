@@ -5,11 +5,14 @@ export default function Properties() {
   const [searchParams] = useSearchParams();
   const checkIn = searchParams.get('checkIn');
   const checkOut = searchParams.get('checkOut');
+  const initialSearch = searchParams.get('q') || '';
 
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState('SORT: FEATURED');
   const [selectedTypes, setSelectedTypes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [maxPrice, setMaxPrice] = useState(10000000); // Mặc định 10 triệu VND
 
   useEffect(() => {
     let url = 'http://localhost:8080/api/room-types';
@@ -51,7 +54,7 @@ export default function Properties() {
         console.error('Error fetching room types:', err);
         setLoading(false);
       });
-  }, []);
+  }, [checkIn, checkOut]);
 
   const handleTypeToggle = (type) => {
     setSelectedTypes(prev => 
@@ -59,12 +62,28 @@ export default function Properties() {
     );
   };
 
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q !== null) {
+      setSearchTerm(q);
+    }
+  }, [searchParams]);
+
   // Logic Lọc và Sắp xếp
   let filteredRooms = [...rooms];
   
   if (selectedTypes.length > 0) {
     filteredRooms = filteredRooms.filter(r => selectedTypes.includes(r.name));
   }
+
+  if (searchTerm.trim() !== '') {
+    filteredRooms = filteredRooms.filter(r => 
+      r.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      r.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+
+  filteredRooms = filteredRooms.filter(r => r.rawPrice <= maxPrice);
 
   if (sortOption === 'PRICE: LOW TO HIGH') {
     filteredRooms.sort((a, b) => a.rawPrice - b.rawPrice);
@@ -114,16 +133,35 @@ export default function Properties() {
         {/* Sidebar Filters */}
         <div className="lg:col-span-1 space-y-10 pr-4">
           
+          {/* Search Box */}
+          <div>
+            <h3 className="text-sm font-bold border-l-2 border-[#8b6e45] pl-3 mb-6">Search</h3>
+            <input 
+              type="text" 
+              placeholder="Tìm tên phòng, mô tả..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full border border-gray-300 rounded-sm py-2 px-3 text-sm focus:outline-none focus:border-[#8b6e45]"
+            />
+          </div>
+
           {/* Price Range */}
           <div>
-            <h3 className="text-sm font-bold border-l-2 border-[#8b6e45] pl-3 mb-6">Price Range</h3>
-            <div className="relative h-1 bg-gray-200 rounded-full mb-4">
-              <div className="absolute top-0 left-0 w-2/3 h-full bg-[#8b6e45] rounded-full"></div>
-              <div className="absolute top-1/2 left-2/3 w-4 h-4 bg-[#8b6e45] rounded-full -translate-y-1/2 -translate-x-1/2 border-2 border-white shadow"></div>
+            <h3 className="text-sm font-bold border-l-2 border-[#8b6e45] pl-3 mb-6">Max Price</h3>
+            <div className="mb-4">
+              <input 
+                type="range" 
+                min="0" 
+                max="10000000" 
+                step="500000"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#8b6e45]"
+              />
             </div>
-            <div className="flex justify-between text-xs font-medium text-gray-500">
-              <span>$200</span>
-              <span>$2000+</span>
+            <div className="flex justify-between text-xs font-medium text-[#0f1c2e]">
+              <span>0 ₫</span>
+              <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(maxPrice)}</span>
             </div>
           </div>
 
@@ -146,15 +184,21 @@ export default function Properties() {
             </div>
           </div>
 
-          {/* Amenities */}
+          {/* Amenities - Hiển thị tiện ích tổng quan (không lọc) */}
           <div>
             <h3 className="text-sm font-bold border-l-2 border-[#8b6e45] pl-3 mb-6">Amenities</h3>
             <div className="flex flex-wrap gap-2">
-              <button className="px-3 py-1 text-xs border border-gray-300 text-gray-600 hover:border-gray-400">PRIVATE POOL</button>
-              <button className="px-3 py-1 text-xs bg-[#0f1c2e] text-white border border-[#0f1c2e]">BUTLER SERVICE</button>
-              <button className="px-3 py-1 text-xs border border-gray-300 text-gray-600 hover:border-gray-400">OCEAN VIEW</button>
-              <button className="px-3 py-1 text-xs border border-gray-300 text-gray-600 hover:border-gray-400">WINE CELLAR</button>
+              {['PRIVATE POOL', 'BUTLER SERVICE', 'OCEAN VIEW', 'WIFI FREE', 'SPA', 'GYM'].map(label => (
+                <span
+                  key={label}
+                  className="px-3 py-1 text-xs border border-gray-200 text-gray-500 rounded-sm bg-gray-50 cursor-default"
+                  title="Tiện ích được cung cấp tại khách sạn"
+                >
+                  {label}
+                </span>
+              ))}
             </div>
+            <p className="text-xs text-gray-400 mt-3 italic">* Tất cả các hạng phòng đều được hưởng các tiện ích trên</p>
           </div>
 
         </div>

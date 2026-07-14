@@ -234,8 +234,30 @@ export default function BookingDetail() {
         </div>
 
         {/* Footer Actions */}
-        <div className="p-8 border-t border-gray-100 bg-gray-50 flex justify-center space-x-4">
-          <button className="px-8 py-3 bg-white border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-50 transition-colors flex items-center shadow-sm">
+        <div className="p-8 border-t border-gray-100 bg-gray-50 flex justify-center space-x-4 print:hidden">
+          <button 
+            onClick={() => {
+              // Thêm CSS in ấn vào trang (ẩn header, footer, chỉ giữ nội dung hóa đơn)
+              const style = document.createElement('style');
+              style.id = 'print-style';
+              style.innerHTML = `
+                @media print {
+                  body > * { display: none !important; }
+                  #root > * { display: none !important; }
+                  .print-area { display: block !important; }
+                  nav, header, footer { display: none !important; }
+                }
+              `;
+              document.head.appendChild(style);
+              window.print();
+              // Xóa CSS sau khi in xong
+              setTimeout(() => {
+                const el = document.getElementById('print-style');
+                if (el) el.remove();
+              }, 1000);
+            }}
+            className="px-8 py-3 bg-white border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-50 transition-colors flex items-center shadow-sm"
+          >
             <span className="material-symbols-outlined mr-2">print</span>
             In Hóa Đơn
           </button>

@@ -18,8 +18,18 @@ export default function ManageUsers() {
         'Authorization': token ? `Bearer ${token}` : ''
       }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          console.error('Lỗi API users:', res.status, res.statusText);
+          if (res.status === 403 || res.status === 401) {
+            console.warn('Token hết hạn hoặc không có quyền. Hãy đăng nhập lại với tài khoản ADMIN.');
+          }
+          return [];
+        }
+        return res.json();
+      })
       .then(data => {
+        if (!Array.isArray(data)) return;
         setUsers(data);
       })
       .catch(err => console.error(err))

@@ -47,14 +47,37 @@ export default function AdminDashboard() {
         const userStr = localStorage.getItem('user');
         const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
-        const res = await fetch('http://localhost:8080/api/bookings', {
-          headers: {
-            'Authorization': token ? `Bearer ${token}` : ''
-          }
-        });
+        const [bookingsRes, roomTypesRes] = await Promise.all([
+          fetch('http://localhost:8080/api/bookings', {
+            headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+          }),
+          fetch('http://localhost:8080/api/room-types')
+        ]);
         
-        if (res.ok) {
-          const bookings = await res.json();
+        if (bookingsRes.ok) {
+          const bookings = await bookingsRes.json();
+          
+          // Tính phòng đang bận = đơn CONFIRMED/PENDING có ngày check-in <= hôm nay <= check-out
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const occupiedRoomIds = new Set();
+          bookings.forEach(b => {
+            if (b.status === 'CONFIRMED' || b.status === 'PENDING') {
+              const checkIn = new Date(b.checkInDate);
+              const checkOut = new Date(b.checkOutDate);
+              if (checkIn <= today && today <= checkOut && b.room?.id) {
+                occupiedRoomIds.add(b.room.id);
+              }
+            }
+          });
+
+          // Lấy tổng số loại phòng để ước tính phòng trống
+          let totalRooms = 0;
+          if (roomTypesRes.ok) {
+            const roomTypes = await roomTypesRes.json();
+            totalRooms = roomTypes.length;
+          }
+          const availableCount = Math.max(0, totalRooms - occupiedRoomIds.size);
           
           let totalRev = 0;
           const monthlyRevenue = {
@@ -65,9 +88,7 @@ export default function AdminDashboard() {
           const roomTypeCount = {};
 
           bookings.forEach(b => {
-            // Lấy giá từ RoomType
             const roomPrice = b.room?.roomType?.price || 0;
-            // Tính số đêm
             const start = new Date(b.checkInDate);
             const end = new Date(b.checkOutDate);
             let nights = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24));
@@ -77,13 +98,11 @@ export default function AdminDashboard() {
             if (b.status === 'CONFIRMED' || b.status === 'COMPLETED') {
               totalRev += bookingRev;
               
-              // Tính cho biểu đồ theo tháng
               if (!isNaN(start.getMonth())) {
                 const monthKey = `T${start.getMonth() + 1}`;
                 monthlyRevenue[monthKey] += bookingRev;
               }
               
-              // Tính cho biểu đồ tròn (Tỉ lệ loại phòng)
               const roomTypeName = b.room?.roomType?.typeName || 'Khác';
               if (roomTypeCount[roomTypeName]) {
                 roomTypeCount[roomTypeName]++;
@@ -96,7 +115,7 @@ export default function AdminDashboard() {
           setStats({
             totalBookings: bookings.length,
             totalRevenue: totalRev,
-            roomsAvailable: 15 // Giả định
+            roomsAvailable: availableCount
           });
 
           setChartData({
@@ -110,7 +129,6 @@ export default function AdminDashboard() {
             ]
           });
 
-          // Các màu cho biểu đồ tròn
           const backgroundColors = [
             '#0f1c2e', '#8b6e45', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'
           ];
@@ -168,9 +186,9 @@ export default function AdminDashboard() {
             <span className="material-symbols-outlined text-3xl">hotel</span>
           </div>
           <div>
-            <div className="text-sm text-gray-500 mb-1">Phòng trống ước tính</div>
-            <div className="text-2xl font-bold text-gray-900">{stats.roomsAvailable}</div>
-          </div>
+              <div className="text-sm text-gray-500 mb-1">Loại phòng khả dụng hôm nay</div>
+              <div className="text-2xl font-bold text-gray-900">{stats.roomsAvailable}</div>
+            </div>
         </div>
       </div>
 

@@ -45,8 +45,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 // Cho phép truy cập Swagger UI
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                // Cho phép xem phòng (GET) mà không cần login
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/rooms/**", "/api/room-types/**", "/api/services/**").permitAll()
+                // Cho phép xem phòng và banner (GET) mà không cần login
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/rooms/**", "/api/room-types/**", "/api/services/**", "/api/banners/**").permitAll()
                 // Cho phép api payment
                 .requestMatchers("/api/payment/**").permitAll()
                 // Tất cả các request khác phải đăng nhập
@@ -56,5 +56,18 @@ public class SecurityConfig {
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+        // Spring Security 6: dùng setAllowedOriginPatterns thay vì setAllowedOrigins
+        configuration.setAllowedOriginPatterns(java.util.Arrays.asList("*"));
+        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+        configuration.setAllowCredentials(false);
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

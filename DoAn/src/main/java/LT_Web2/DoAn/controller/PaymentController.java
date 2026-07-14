@@ -21,6 +21,9 @@ public class PaymentController {
     @Autowired
     private BookingRepository bookingRepository;
 
+    @Autowired
+    private LT_Web2.DoAn.service.EmailService emailService;
+
     @org.springframework.beans.factory.annotation.Value("${vnpay.tmnCode}")
     private String vnp_TmnCode;
 
@@ -158,10 +161,25 @@ public class PaymentController {
                     Long bookingId = Long.parseLong(parts[1]);
                     Booking booking = bookingRepository.findById(bookingId).orElse(null);
                     if (booking != null) {
-                        booking.setStatus("CONFIRMED"); // Đã thanh toán và duyệt
+                        booking.setStatus("COMPLETED"); // Đã thanh toán và hoàn thành
                         bookingRepository.save(booking);
+
+                        // Gửi email xác nhận thanh toán thành công
+                        try {
+                            if (booking.getCustomer() != null && booking.getCustomer().getEmail() != null && !booking.getCustomer().getEmail().isEmpty()) {
+                                LT_Web2.DoAn.entity.User tempUser = new LT_Web2.DoAn.entity.User();
+                                tempUser.setEmail(booking.getCustomer().getEmail());
+                                tempUser.setFullName(booking.getCustomer().getFullName());
+                                emailService.sendPaymentSuccessConfirmation(tempUser, booking);
+                            } else if (booking.getUser() != null) {
+                                emailService.sendPaymentSuccessConfirmation(booking.getUser(), booking);
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Lỗi khi gọi hàm gửi email thanh toán: " + e.getMessage());
+                        }
+
                         result.put("status", "success");
-                        result.put("message", "Payment successful, booking updated.");
+                        result.put("message", "Payment successful, booking updated to COMPLETED.");
                     } else {
                         result.put("status", "error");
                         result.put("message", "Booking not found in DB with ID: " + bookingId);

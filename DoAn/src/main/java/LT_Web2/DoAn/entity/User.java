@@ -27,6 +27,10 @@ public class User {
 
     private String phone;
 
+    private String resetOtp;
+
+    private java.time.LocalDateTime resetOtpExpiry;
+
     public User() {
     }
 
@@ -92,5 +96,21 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getResetOtp() {
+        return resetOtp;
+    }
+
+    public void setResetOtp(String resetOtp) {
+        this.resetOtp = resetOtp;
+    }
+
+    public java.time.LocalDateTime getResetOtpExpiry() {
+        return resetOtpExpiry;
+    }
+
+    public void setResetOtpExpiry(java.time.LocalDateTime resetOtpExpiry) {
+        this.resetOtpExpiry = resetOtpExpiry;
     }
 }

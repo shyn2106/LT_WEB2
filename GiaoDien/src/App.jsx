@@ -12,12 +12,15 @@ import Register from './pages/customer/Register';
 import Profile from './pages/customer/Profile';
 import BookingDetail from './pages/customer/BookingDetail';
 import PaymentResult from './pages/customer/PaymentResult';
+import ForgotPassword from './pages/customer/ForgotPassword';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageBookings from './pages/admin/ManageBookings';
 import ManageRooms from './pages/admin/ManageRooms';
+import ManageRoomTypes from './pages/admin/ManageRoomTypes';
 import ManageServices from './pages/admin/ManageServices';
 import ManageUsers from './pages/admin/ManageUsers';
+import ManageBanners from './pages/admin/ManageBanners';
 
 function App() {
   return (
@@ -31,6 +34,7 @@ function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="register" element={<Register />} />
           <Route path="profile" element={<Profile />} />
           <Route path="booking/:id" element={<BookingDetail />} />
@@ -43,8 +47,10 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="bookings" element={<ManageBookings />} />
           <Route path="rooms" element={<ManageRooms />} />
+          <Route path="room-types" element={<ManageRoomTypes />} />
           <Route path="services" element={<ManageServices />} />
           <Route path="users" element={<ManageUsers />} />
+          <Route path="banners" element={<ManageBanners />} />
           {/* Các route quản lý khác sẽ thêm sau */}
           <Route path="*" element={<div className="p-12 text-center text-xl">404 - Not Found</div>} />
         </Route>
