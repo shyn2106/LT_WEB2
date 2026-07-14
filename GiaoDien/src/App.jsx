@@ -47,8 +47,8 @@ function PaymentRedirectHandler() {
 function App() {
   return (
     <BrowserRouter>
+      <PaymentRedirectHandler />
       <Routes>
-        <PaymentRedirectHandler />
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="room/:id" element={<RoomDetail />} />
