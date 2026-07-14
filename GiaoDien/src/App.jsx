@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/customer/Home';
 import RoomDetail from './pages/customer/RoomDetail';
@@ -22,10 +22,24 @@ import ManageServices from './pages/admin/ManageServices';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageBanners from './pages/admin/ManageBanners';
 
+// Component xử lý redirect từ payment-result.html (file tĩnh)
+function PaymentRedirectHandler() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const params = sessionStorage.getItem('vnpay_return_params');
+    if (params) {
+      sessionStorage.removeItem('vnpay_return_params');
+      navigate('/payment-result' + params, { replace: true });
+    }
+  }, [navigate]);
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <PaymentRedirectHandler />
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="room/:id" element={<RoomDetail />} />

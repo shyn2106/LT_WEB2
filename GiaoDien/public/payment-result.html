@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Đang xử lý thanh toán...</title>
+  <script>
+    // Lưu toàn bộ query string của VNPAY vào sessionStorage
+    // rồi redirect về trang chủ để React app xử lý
+    var search = window.location.search;
+    if (search) {
+      sessionStorage.setItem('vnpay_return_params', search);
+    }
+    window.location.replace('/');
+  </script>
+</head>
+<body>
+  <p style="font-family:sans-serif;text-align:center;margin-top:50px">Đang xử lý kết quả thanh toán...</p>
+</body>
+</html>
