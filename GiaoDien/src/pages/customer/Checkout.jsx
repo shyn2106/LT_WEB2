@@ -26,7 +26,7 @@ export default function Checkout() {
   const [selectedServices, setSelectedServices] = useState([]);
 
   React.useEffect(() => {
-    fetch('http://localhost:8080/api/services')
+    fetch('https://ltweb2-production.up.railway.app/api/services')
       .then(res => res.json())
       .then(data => setAvailableServices(data))
       .catch(err => console.error("Error fetching services:", err));
@@ -73,7 +73,7 @@ export default function Checkout() {
       services: selectedServices.map(s => ({ id: s.id }))
     };
 
-    fetch('http://localhost:8080/api/bookings', {
+    fetch('https://ltweb2-production.up.railway.app/api/bookings', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ export default function Checkout() {
     })
     .then(data => {
       if (paymentMethod === 'VNPAY') {
-        fetch(`http://localhost:8080/api/payment/create_payment?amount=${grandTotal}&bookingId=${data.id}`)
+        fetch(`https://ltweb2-production.up.railway.app/api/payment/create_payment?amount=${grandTotal}&bookingId=${data.id}`)
           .then(res => res.json())
           .then(paymentData => {
             if (paymentData.status === 'ok' && paymentData.url) {

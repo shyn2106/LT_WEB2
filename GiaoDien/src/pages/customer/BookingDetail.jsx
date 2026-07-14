@@ -15,7 +15,7 @@ export default function BookingDetail() {
     }
     const token = JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '';
 
-    fetch(`http://localhost:8080/api/bookings/${id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/bookings/${id}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

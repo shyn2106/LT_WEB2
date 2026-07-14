@@ -22,7 +22,7 @@ export default function ManageServices() {
 
   const fetchServices = () => {
     setLoading(true);
-    fetch('http://localhost:8080/api/services')
+    fetch('https://ltweb2-production.up.railway.app/api/services')
       .then(res => res.json())
       .then(data => {
         setServices(data);
@@ -68,8 +68,8 @@ export default function ManageServices() {
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
     const url = editingService 
-      ? `http://localhost:8080/api/services/${editingService.id}`
-      : 'http://localhost:8080/api/services';
+      ? `https://ltweb2-production.up.railway.app/api/services/${editingService.id}`
+      : 'https://ltweb2-production.up.railway.app/api/services';
       
     const method = editingService ? 'PUT' : 'POST';
 
@@ -104,7 +104,7 @@ export default function ManageServices() {
     const userStr = localStorage.getItem('user');
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
-    fetch(`http://localhost:8080/api/services/${id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/services/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': token ? `Bearer ${token}` : ''

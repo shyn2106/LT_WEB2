@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function ManageRooms() {
   const [rooms, setRooms] = useState([]);
@@ -28,7 +28,7 @@ export default function ManageRooms() {
   const fetchRooms = () => {
     setLoading(true);
     const token = getToken();
-    fetch("http://localhost:8080/api/rooms", {
+    fetch("https://ltweb2-production.up.railway.app/api/rooms", {
       headers: { Authorization: token ? `Bearer ${token}` : "" }
     })
       .then(res => res.json())
@@ -38,7 +38,7 @@ export default function ManageRooms() {
   };
 
   const fetchRoomTypes = () => {
-    fetch("http://localhost:8080/api/room-types")
+    fetch("https://ltweb2-production.up.railway.app/api/room-types")
       .then(res => res.json())
       .then(data => setRoomTypes(data))
       .catch(err => console.error(err));
@@ -73,8 +73,8 @@ export default function ManageRooms() {
       roomType: { id: parseInt(formData.roomTypeId) }
     };
     const url = editingRoom
-      ? `http://localhost:8080/api/rooms/${editingRoom.id}`
-      : "http://localhost:8080/api/rooms";
+      ? `https://ltweb2-production.up.railway.app/api/rooms/${editingRoom.id}`
+      : "https://ltweb2-production.up.railway.app/api/rooms";
     const method = editingRoom ? "PUT" : "POST";
 
     fetch(url, {
@@ -100,7 +100,7 @@ export default function ManageRooms() {
   const handleDelete = (id) => {
     if (!window.confirm("Ban co chac muon xoa phong nay khong?")) return;
     const token = getToken();
-    fetch(`http://localhost:8080/api/rooms/${id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/rooms/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     })

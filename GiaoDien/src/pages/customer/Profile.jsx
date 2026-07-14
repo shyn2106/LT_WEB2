@@ -29,7 +29,7 @@ export default function Profile() {
     });
     const token = userData.token || userData.accessToken || '';
 
-    fetch(`http://localhost:8080/api/bookings/user/${userData.id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/bookings/user/${userData.id}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -55,7 +55,7 @@ export default function Profile() {
 
   const handleSaveProfile = () => {
     const token = user.token || user.accessToken || '';
-    fetch(`http://localhost:8080/api/users/${user.id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/users/${user.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

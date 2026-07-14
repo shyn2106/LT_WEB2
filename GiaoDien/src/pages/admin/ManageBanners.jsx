@@ -26,7 +26,7 @@ export default function ManageBanners() {
 
   const fetchBanners = () => {
     setLoading(true);
-    fetch('http://localhost:8080/api/banners')
+    fetch('https://ltweb2-production.up.railway.app/api/banners')
       .then(res => res.json())
       .then(data => {
         setBanners(data);
@@ -76,8 +76,8 @@ export default function ManageBanners() {
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
     const url = editingBanner 
-      ? `http://localhost:8080/api/banners/${editingBanner.id}`
-      : 'http://localhost:8080/api/banners';
+      ? `https://ltweb2-production.up.railway.app/api/banners/${editingBanner.id}`
+      : 'https://ltweb2-production.up.railway.app/api/banners';
       
     const method = editingBanner ? 'PUT' : 'POST';
 
@@ -112,7 +112,7 @@ export default function ManageBanners() {
     const userStr = localStorage.getItem('user');
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
-    fetch(`http://localhost:8080/api/banners/${id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/banners/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': token ? `Bearer ${token}` : ''
@@ -138,7 +138,7 @@ export default function ManageBanners() {
       isActive: !banner.isActive
     };
 
-    fetch(`http://localhost:8080/api/banners/${banner.id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/banners/${banner.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

@@ -24,7 +24,7 @@ export default function RoomDetail() {
   useEffect(() => {
     // If no ID is provided, fetch ID 1 as default for demo purposes
     const fetchId = id || 1;
-    fetch(`http://localhost:8080/api/room-types/${fetchId}`)
+    fetch(`https://ltweb2-production.up.railway.app/api/room-types/${fetchId}`)
       .then(res => res.json())
       .then(data => {
         setRoom(data);

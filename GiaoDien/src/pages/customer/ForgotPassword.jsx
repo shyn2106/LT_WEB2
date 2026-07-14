@@ -19,7 +19,7 @@ export default function ForgotPassword() {
     setError('');
     setSuccessMsg('');
 
-    fetch('http://localhost:8080/api/auth/forgot-password', {
+    fetch('https://ltweb2-production.up.railway.app/api/auth/forgot-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -56,7 +56,7 @@ export default function ForgotPassword() {
       return;
     }
 
-    fetch('http://localhost:8080/api/auth/reset-password', {
+    fetch('https://ltweb2-production.up.railway.app/api/auth/reset-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

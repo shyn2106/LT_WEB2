@@ -13,7 +13,7 @@ export default function ManageUsers() {
     const userStr = localStorage.getItem('user');
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
-    fetch('http://localhost:8080/api/users', {
+    fetch('https://ltweb2-production.up.railway.app/api/users', {
       headers: {
         'Authorization': token ? `Bearer ${token}` : ''
       }
@@ -59,7 +59,7 @@ export default function ManageUsers() {
     const userStr = localStorage.getItem('user');
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
-    fetch(`http://localhost:8080/api/users/${id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/users/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

@@ -8,7 +8,7 @@ export default function FeaturedRooms() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/room-types')
+    fetch('https://ltweb2-production.up.railway.app/api/room-types')
       .then(res => res.json())
       .then(data => {
         // Lấy tối đa 3 phòng đầu tiên làm phòng nổi bật

@@ -19,7 +19,7 @@ export default function ManageBookings() {
     const userStr = localStorage.getItem('user');
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
-    fetch('http://localhost:8080/api/bookings', {
+    fetch('https://ltweb2-production.up.railway.app/api/bookings', {
       headers: {
         'Authorization': token ? `Bearer ${token}` : '',
         'Cache-Control': 'no-cache',
@@ -58,7 +58,7 @@ export default function ManageBookings() {
     const userStr = localStorage.getItem('user');
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
-    fetch(`http://localhost:8080/api/bookings/${id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/bookings/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

@@ -24,7 +24,7 @@ export default function ManageRoomTypes() {
 
   const fetchRooms = () => {
     setLoading(true);
-    fetch('http://localhost:8080/api/room-types')
+    fetch('https://ltweb2-production.up.railway.app/api/room-types')
       .then(res => res.json())
       .then(data => {
         setRooms(data);
@@ -69,8 +69,8 @@ export default function ManageRoomTypes() {
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
     const url = editingRoom 
-      ? `http://localhost:8080/api/room-types/${editingRoom.id}`
-      : 'http://localhost:8080/api/room-types';
+      ? `https://ltweb2-production.up.railway.app/api/room-types/${editingRoom.id}`
+      : 'https://ltweb2-production.up.railway.app/api/room-types';
       
     const method = editingRoom ? 'PUT' : 'POST';
 
@@ -106,7 +106,7 @@ export default function ManageRoomTypes() {
     const userStr = localStorage.getItem('user');
     const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
-    fetch(`http://localhost:8080/api/room-types/${id}`, {
+    fetch(`https://ltweb2-production.up.railway.app/api/room-types/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': token ? `Bearer ${token}` : ''

@@ -15,9 +15,9 @@ export default function Properties() {
   const [maxPrice, setMaxPrice] = useState(10000000); // Mặc định 10 triệu VND
 
   useEffect(() => {
-    let url = 'http://localhost:8080/api/room-types';
+    let url = 'https://ltweb2-production.up.railway.app/api/room-types';
     if (checkIn && checkOut) {
-      url = `http://localhost:8080/api/room-types/available?checkIn=${checkIn}&checkOut=${checkOut}`;
+      url = `https://ltweb2-production.up.railway.app/api/room-types/available?checkIn=${checkIn}&checkOut=${checkOut}`;
     }
 
     fetch(url)

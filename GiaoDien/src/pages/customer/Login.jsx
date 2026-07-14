@@ -15,7 +15,7 @@ export default function Login() {
     setError('');
     setFieldErrors({});
 
-    fetch('http://localhost:8080/api/auth/login', {
+    fetch('https://ltweb2-production.up.railway.app/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

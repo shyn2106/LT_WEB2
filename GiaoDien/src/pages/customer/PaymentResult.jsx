@@ -17,7 +17,7 @@ export default function PaymentResult() {
     }
 
     // Gọi API backend để verify chữ ký VNPAY
-    fetch(`http://localhost:8080/api/payment/vnpay_return${queryParams}`)
+    fetch(`https://ltweb2-production.up.railway.app/api/payment/vnpay_return${queryParams}`)
       .then(res => res.json())
       .then(data => {
         if (data.status === 'success') {

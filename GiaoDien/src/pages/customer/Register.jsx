@@ -24,7 +24,7 @@ export default function Register() {
       return;
     }
 
-    fetch('http://localhost:8080/api/auth/register', {
+    fetch('https://ltweb2-production.up.railway.app/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

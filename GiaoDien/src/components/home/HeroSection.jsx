@@ -11,7 +11,7 @@ export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/banners/active')
+    fetch('https://ltweb2-production.up.railway.app/api/banners/active')
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {

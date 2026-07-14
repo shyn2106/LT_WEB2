@@ -48,10 +48,10 @@ export default function AdminDashboard() {
         const token = userStr ? (JSON.parse(userStr).token || JSON.parse(userStr).accessToken || '') : '';
 
         const [bookingsRes, roomTypesRes] = await Promise.all([
-          fetch('http://localhost:8080/api/bookings', {
+          fetch('https://ltweb2-production.up.railway.app/api/bookings', {
             headers: { 'Authorization': token ? `Bearer ${token}` : '' }
           }),
-          fetch('http://localhost:8080/api/room-types')
+          fetch('https://ltweb2-production.up.railway.app/api/room-types')
         ]);
         
         if (bookingsRes.ok) {
